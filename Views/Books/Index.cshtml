@@ -1,0 +1,111 @@
+﻿@model BookStore.ViewsModels.GenreViewModel
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+<h1>Books</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<form asp-asp-controller="Books" asp-action="Index" method="get">  
+    <p>
+        <select asp-for="BookGenre" asp-items="Model.Genre">
+            <option value="">All</option>
+        </select>
+        Title: <input type="text" asp-for="SearchString" />
+        <input type="submit" value="Filter" />
+    </p>
+</form>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Books[0].Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Books[0].ReleaseYear)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Books[0].NumPages)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Books[0].Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Books[0].Publisher)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Books[0].FrontPage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Books[0].DownloadUrl)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Books[0].Author)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Books) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReleaseYear)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NumPages)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Publisher)
+            </td>
+            <td>
+                <img src="~/files/@Html.DisplayFor(modelItem => item.FrontPage)" height="400px" width="200px">
+            </td>
+            <td>
+                <a href="~/files/@Html.DisplayFor(modelItem => item.DownloadUrl)">Download</a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author.FullName)
+            </td>
+            <td>
+                    @if (Model.Reviews.Any())
+                    {
+                        var rating = 0;
+                        var c = 0;
+                        @foreach (var review in Model.Reviews)
+                        {
+                            if (review.BookId == item.Id && review.Rating != null)
+                            {
+                                c++;
+                                rating += (int)review.Rating;
+
+                            }
+                        }
+                        if  (rating != 0 && c != 0)
+                        {
+                            rating = rating / c;
+                        }
+                        <p> rating</p>
+                    }
+                    else
+                    {
+                        <p>No Rating</p>
+                    }
+            </td>
+            <td>
+            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+            <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
