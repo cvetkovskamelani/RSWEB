@@ -90,21 +90,21 @@ namespace BookStore.Controllers
             {
                 if (viewmodel.Image != null)
                 {
-                    string uniqueFileName = UploadedFile(viewmodel);
-                    viewmodel.Book.FrontPage = uniqueFileName;
+                    string FileName = UploadFile(viewmodel);
+                    viewmodel.Book.FrontPage = FileName;
                 }
                 if (viewmodel.PDF != null)
                 {
-                    string uniqueFileName = UploadedFile(viewmodel);
-                    viewmodel.Book.DownloadUrl = uniqueFileName;
+                    string FileName = UploadFile(viewmodel);
+                    viewmodel.Book.DownloadUrl = FileName;
                 }
                 _context.Add(viewmodel.Book);
                 await _context.SaveChangesAsync();
                 if (viewmodel.SelectedGenres != null)
                 {
-                    foreach (int genreId in viewmodel.SelectedGenres)
+                    foreach (int GenreId in viewmodel.SelectedGenres)
                     {
-                        _context.BookGenres.Add(new BookGenre { BookId = viewmodel.Book.Id, GenreId = genreId });
+                        _context.BookGenres.Add(new BookGenre { BookId = viewmodel.Book.Id, GenreId = GenreId });
                     }
                 }
                 await _context.SaveChangesAsync();
@@ -113,32 +113,32 @@ namespace BookStore.Controllers
             ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "Id", "FullName", viewmodel.Book.AuthorId);
             return View(viewmodel);
         }
-        private string UploadedFile(CreateViewModel model)
+        private string UploadFile(CreateViewModel model)
         {
-            string uniqueFileName = null;
+            string FileName = null;
 
             if (model.Image != null)
             {
                 string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "covers");
-                uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.Image.FileName);
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                FileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.Image.FileName);
+                string filePath = Path.Combine(uploadsFolder, FileName);
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     model.Image.CopyTo(fileStream);
                 }
                 model.Image = null;
-                return uniqueFileName;
+                return FileName;
             }
             else if (model.PDF != null)
             {
                 string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "pdf");
-                uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.PDF.FileName);
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                FileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.PDF.FileName);
+                string filePath = Path.Combine(uploadsFolder, FileName);
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     model.PDF.CopyTo(fileStream);
                 }
-                return uniqueFileName;
+                return FileName;
             }
             return null;
         }
@@ -186,13 +186,13 @@ namespace BookStore.Controllers
                 {
                     if (viewmodel.Image != null)
                     {
-                        string uniqueFileName = UploadedFile(viewmodel);
-                        viewmodel.Book.FrontPage = uniqueFileName;
+                        string FileName = UploadFile(viewmodel);
+                        viewmodel.Book.FrontPage = FileName;
                     }
                     if (viewmodel.PDF != null)
                     {
-                        string uniqueFileName = UploadedFile(viewmodel);
-                        viewmodel.Book.DownloadUrl = uniqueFileName;
+                        string FileName = UploadFile(viewmodel);
+                        viewmodel.Book.DownloadUrl = FileName;
                     }
                     _context.Update(viewmodel.Book);
                     await _context.SaveChangesAsync();
@@ -202,11 +202,11 @@ namespace BookStore.Controllers
                     if (newGenresList != null)
                     {
                         toBeRemoved = toBeRemoved.Where(s => !newGenresList.Contains(s.GenreId));
-                        foreach (int genreId in newGenresList)
+                        foreach (int GenreId in newGenresList)
                         {
-                            if (!prevGenresList.Any(s => s == genreId))
+                            if (!prevGenresList.Any(s => s == GenreId))
                             {
-                                _context.BookGenres.Add(new BookGenre { GenreId = genreId, BookId = id });
+                                _context.BookGenres.Add(new BookGenre { GenreId = GenreId, BookId = id });
                             }
                         }
                     }
@@ -216,6 +216,7 @@ namespace BookStore.Controllers
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!BookExists(viewmodel.Book.Id))
+                        // (!(_context.Books?.Any(e => e.Id == viewmodel.Book.Id)).GetValueOrDefault()))
                     {
                         return NotFound();
                     }
