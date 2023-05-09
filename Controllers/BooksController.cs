@@ -37,14 +37,14 @@ namespace BookStore.Controllers
 
             books = books.Include(b => b.Books).ThenInclude(b => b.Author);
 
-            var bookGenreVM = new GenreViewModel
+            var BookGenreVM = new GenreViewModel
             {
                 Genre = new SelectList(await genreQuery.ToListAsync()),
                 Books = await books.Select(s => s.Books).Distinct().ToListAsync(),
                 Reviews = await _context.Review.ToListAsync()
             };
-
-            return View(bookGenreVM);
+            
+            return View(BookGenreVM);
         }
 
         // GET: Books/Details/5
@@ -156,13 +156,12 @@ namespace BookStore.Controllers
             {
                 return NotFound();
             }
-            var authors = _context.Author.AsEnumerable();
-            authors = authors.OrderBy(s => s.FullName);
+            
             GenresEditModel viewmodel = new GenresEditModel
             {
                 Book = book,
                 GenresList = new MultiSelectList(_context.Genre.AsEnumerable().OrderBy(s => s.GenreName), "Id", "GenreName"),
-                SelectedGenres = Enumerable.Empty<int>()
+                SelectedGenres = book.BookGenres.Select(s => s.GenreId)
             };
             ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "Id", "FullName", book.AuthorId);
             return View(viewmodel);
