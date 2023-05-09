@@ -45,6 +45,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Books[0].Author)
             </th>
+            <th>
+                Rating
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -93,7 +96,7 @@
                         {
                             rating = rating / c;
                         }
-                        <p> rating</p>
+                        <p> @rating</p>
                     }
                     else
                     {

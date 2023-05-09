@@ -22,9 +22,8 @@ namespace BookStore.Controllers
         // GET: Reviews
         public async Task<IActionResult> Index()
         {
-              return _context.Review != null ? 
-                          View(await _context.Review.ToListAsync()) :
-                          Problem("Entity set 'BookStoreContext.Review'  is null.");
+            var BookStoreContext = _context.Review.Include(m => m.Books);
+            return View(await BookStoreContext.ToListAsync());
         }
 
         // GET: Reviews/Details/5
@@ -36,6 +35,7 @@ namespace BookStore.Controllers
             }
 
             var review = await _context.Review
+                .Include(m => m.Books)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (review == null)
             {
@@ -48,6 +48,7 @@ namespace BookStore.Controllers
         // GET: Reviews/Create
         public IActionResult Create()
         {
+            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title");
             return View();
         }
 
@@ -64,6 +65,7 @@ namespace BookStore.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title", review.BookId);
             return View(review);
         }
 
@@ -80,6 +82,7 @@ namespace BookStore.Controllers
             {
                 return NotFound();
             }
+            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title", review.BookId);
             return View(review);
         }
 
@@ -115,6 +118,7 @@ namespace BookStore.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title", review.BookId);
             return View(review);
         }
 
@@ -127,6 +131,7 @@ namespace BookStore.Controllers
             }
 
             var review = await _context.Review
+                .Include(m => m.Books)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (review == null)
             {
