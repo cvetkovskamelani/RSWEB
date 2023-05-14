@@ -1,25 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BookStore.Data;
 using BookStore.Models;
-
+using Microsoft.AspNetCore.Identity;
+using BookStore.Areas.Identity.Data;
+using System.Data;
 namespace BookStore.Controllers
 {
     public class ReviewsController : Controller
     {
         private readonly BookStoreContext _context;
-
-        public ReviewsController(BookStoreContext context)
+        private readonly UserManager<BookStoreUser> _userManager;
+        public ReviewsController(BookStoreContext context, UserManager<BookStoreUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Reviews
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             var BookStoreContext = _context.Review.Include(m => m.Books);
@@ -27,6 +28,7 @@ namespace BookStore.Controllers
         }
 
         // GET: Reviews/Details/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Review == null)
@@ -46,8 +48,37 @@ namespace BookStore.Controllers
         }
 
         // GET: Reviews/Create
-        public IActionResult Create()
+        [Authorize]
+        public async Task<IActionResult> Create(int id)
         {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            // Who is making the review
+            ViewData["User"] = user.Email;
+            if (User.IsInRole("Admin"))
+            {
+                ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title");
+                return View();
+            }
+
+            // id must not be null if the user is logged in and is not the admin
+            if (id == null)
+            {
+                return NotFound("Error");
+            }
+
+            // The user has to own the book
+            var own = _context.UserBooks.Where(s => s.BookId == id && s.AppUser == user.Email).ToListAsync();
+            if (own == null)
+            {
+                return NotFound("Error");
+            }
+
+            // Return a list of only one item
+            var book = _context.Books.Where(b => b.Id == id);
+            if (book.FirstOrDefaultAsync() == null)
+            {
+                return NotFound("Error");
+            }
             ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title");
             return View();
         }
@@ -57,6 +88,7 @@ namespace BookStore.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Create([Bind("Id,BookId,AppUser,Comment,Rating")] Review review)
         {
             if (ModelState.IsValid)
@@ -82,6 +114,7 @@ namespace BookStore.Controllers
             {
                 return NotFound();
             }
+            var book = _context.Review.Include(b => b.Books).Where(b => b.Id == id).Select(b => b.Books).ToList();
             ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title", review.BookId);
             return View(review);
         }
@@ -116,7 +149,7 @@ namespace BookStore.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Books");
             }
             ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title", review.BookId);
             return View(review);
@@ -157,7 +190,7 @@ namespace BookStore.Controllers
             }
             
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Books");
         }
 
         private bool ReviewExists(int id)

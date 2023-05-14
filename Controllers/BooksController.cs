@@ -6,18 +6,25 @@ using BookStore.Models;
 using BookStore.ViewsModels;
 using Microsoft.AspNetCore.Razor.Language.Extensions;
 using Microsoft.AspNetCore.Hosting;
-
+using BookStore.Areas.Identity.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Data;
 namespace BookStore.Controllers
 {
     public class BooksController : Controller
     {
         private readonly BookStoreContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly UserManager<BookStoreUser> _userManager;
 
-        public BooksController(BookStoreContext context, IWebHostEnvironment webHostEnvironment)
+        public BooksController(BookStoreContext context, IWebHostEnvironment webHostEnvironment, UserManager<BookStoreUser> userManager)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _userManager = userManager;
         }
 
         // GET: Books
@@ -47,6 +54,28 @@ namespace BookStore.Controllers
             return View(BookGenreVM);
         }
 
+        // GET: Owned Books
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> OwnedBooks(string searchString)
+        {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            IQueryable<UserBooks> books = _context.UserBooks.AsQueryable().Where(s => s.AppUser == user.Email);
+            IQueryable<string> genreQuery = _context.Genre.Distinct().Select(g => g.GenreName).Distinct();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                books = books.Where(s => s.Books.Title.Contains(searchString));
+            }
+
+            books = books.Include(b => b.Books).ThenInclude(b => b.Author);
+
+            var bookGenreVM = new GenreViewModel
+            {
+                Books = await books.Select(s => s.Books).Distinct().ToListAsync(),
+                Reviews = await _context.Review.ToListAsync()
+            };
+
+            return View(bookGenreVM);
+        }
         // GET: Books/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -62,15 +91,41 @@ namespace BookStore.Controllers
             {
                 return NotFound();
             }
-            return View(books);
+            // ownership
+            string purchesed = "No";
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            if (user != null)
+            {
+                var onwnership = await _context.UserBooks.Where(b => b.BookId == id && b.AppUser == user.Email).FirstOrDefaultAsync();
+                if (onwnership != null)
+                {
+                    purchesed = "Yes";
+                }
+                ViewBag.Email = user.Email;
+            }
+            else
+            {
+                ViewBag.Email = null;
+            }
+            // Get the reviews of this book
+            var reviews = await _context.Review.Where(b => b.BookId == id).ToListAsync();
+
+            var bookDetailsVM = new DetailsViewModel
+            {
+                Book = books,
+                Reviews = reviews,
+                Purchased = purchesed
+            };
+            return View(bookDetailsVM);
         }
 
         // GET: Books/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create() { 
             CreateViewModel viewmodel = new CreateViewModel
             {
                 Book = new Books(),
-                GenreList = new MultiSelectList(_context.Genre.AsEnumerable().OrderBy(s => s.GenreName), "Id", "GenreName"),
+                GenreList = new MultiSelectList(_context.Genre.AsEnumerable(), "Id", "GenreName"),
                 SelectedGenres = Enumerable.Empty<int>()
             };
         
@@ -84,6 +139,7 @@ namespace BookStore.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(CreateViewModel viewmodel)
         {
             if (ModelState.IsValid)
@@ -113,6 +169,7 @@ namespace BookStore.Controllers
             ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "Id", "FullName", viewmodel.Book.AuthorId);
             return View(viewmodel);
         }
+        [Authorize(Roles = "Admin")]
         private string UploadFile(CreateViewModel model)
         {
             string FileName = null;
@@ -144,6 +201,7 @@ namespace BookStore.Controllers
         }
 
         // GET: Books/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Books == null)
@@ -172,6 +230,7 @@ namespace BookStore.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, CreateViewModel viewmodel)
         {
             if (id != viewmodel.Book.Id)
@@ -196,14 +255,14 @@ namespace BookStore.Controllers
                     _context.Update(viewmodel.Book);
                     await _context.SaveChangesAsync();
                     IEnumerable<int> newGenresList = viewmodel.SelectedGenres;
-                    IEnumerable<int> prevGenresList = _context.BookGenres.Where(s => s.BookId == id).Select(s => s.GenreId);
-                    IQueryable<BookGenre> toBeRemoved = _context.BookGenres.Where(s => s.BookId == id);
+                    IEnumerable<int> prevGenresList = _context.BookGenres.Where(m => m.BookId == id).Select(m => m.GenreId);
+                    IQueryable<BookGenre> toBeRemoved = _context.BookGenres.Where(m => m.BookId == id);
                     if (newGenresList != null)
                     {
-                        toBeRemoved = toBeRemoved.Where(s => !newGenresList.Contains(s.GenreId));
+                        toBeRemoved = toBeRemoved.Where(m => !newGenresList.Contains(m.GenreId));
                         foreach (int GenreId in newGenresList)
                         {
-                            if (!prevGenresList.Any(s => s == GenreId))
+                            if (!prevGenresList.Any(m => m == GenreId))
                             {
                                 _context.BookGenres.Add(new BookGenre { GenreId = GenreId, BookId = id });
                             }
@@ -234,6 +293,7 @@ namespace BookStore.Controllers
             return (_context.Books?.Any(e => e.Id == id)).GetValueOrDefault();
         }
         // GET: Books/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Books == null)
@@ -242,7 +302,7 @@ namespace BookStore.Controllers
             }
 
             var books = await _context.Books
-                .Include(b => b.Author)
+                .Include(m => m.Author)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (books == null)
             {
@@ -255,6 +315,7 @@ namespace BookStore.Controllers
         // POST: Books/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Books == null)
@@ -270,7 +331,41 @@ namespace BookStore.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> Buy(int id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
+            var book = await _context.Books
+                .Include(m => m.Author)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+
+            var usr = await _userManager.GetUserAsync(HttpContext.User);
+            if (usr == null)
+            {
+                return NotFound();
+            }
+
+            var ownAlready = await _context.UserBooks.Where(s => s.AppUser == usr.Email && s.BookId == id).FirstOrDefaultAsync();
+            if (ownAlready != null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            _context.UserBooks.Add(new UserBooks { AppUser = usr.Email, BookId = id });
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
         private bool BooksExists(int id)
         {
           return (_context.Books?.Any(e => e.Id == id)).GetValueOrDefault();

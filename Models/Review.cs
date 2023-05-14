@@ -12,12 +12,10 @@ namespace BookStore.Models
         public int BookId { get; set; }
 
         [Display(Name = "App User")]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z\s]*$")]
         [StringLength(450, MinimumLength = 3)]
         [Required]
         public string? AppUser { get; set; }
 
-        [RegularExpression(@"^[A-Z]+[a-zA-Z\s]*$")]
         [StringLength(500, MinimumLength = 3)]
         [Required]
         public string? Comment { get; set; }
