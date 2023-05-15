@@ -11,7 +11,6 @@ namespace BookStore.Models
         public int Id { get; set; }
 
         [StringLength(100, MinimumLength = 3)]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z\s]*$")]
         [Required]
         public string? Title { get; set; }
 
@@ -23,17 +22,14 @@ namespace BookStore.Models
         public int NumPages { get; set; }
 
         [StringLength(500, MinimumLength = 3)]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z\s]*$")]
         [Required]
         public string? Description { get; set; }
 
         [StringLength(50, MinimumLength = 3)]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z\s]*$")]
         [Required]
         public string? Publisher { get; set; }
 
         [StringLength(500, MinimumLength = 3)]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z\s]*$")]
         [Required]
         [Display(Name = "Front Page")]
         public string? FrontPage { get; set; }
