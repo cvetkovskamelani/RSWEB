@@ -95,7 +95,7 @@ namespace BookStore.Controllers
             {
                 _context.Add(review);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Create));
             }
             ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title", review.BookId);
             return View(review);

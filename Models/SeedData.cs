@@ -182,7 +182,7 @@ namespace BookStore.Models
                         new Genre
                         {
                             // Id = 7
-                            GenreName = " Fiction Literary"
+                            GenreName = "Fiction Literary"
                         }
                         
                     );

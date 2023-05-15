@@ -5,12 +5,9 @@ using BookStore.Data;
 using BookStore.Models;
 using BookStore.ViewsModels;
 using Microsoft.AspNetCore.Razor.Language.Extensions;
-using Microsoft.AspNetCore.Hosting;
 using BookStore.Areas.Identity.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
 namespace BookStore.Controllers
 {
@@ -107,7 +104,7 @@ namespace BookStore.Controllers
             {
                 ViewBag.Email = null;
             }
-            // Get the reviews of this book
+            // Get the reviews
             var reviews = await _context.Review.Where(b => b.BookId == id).ToListAsync();
 
             var bookDetailsVM = new DetailsViewModel
