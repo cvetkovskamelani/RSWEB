@@ -13,6 +13,38 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
+      "Id": "C:\\Users\\melan\\source\\repos\\BookStore\\wwwroot\\files\\covers\\1.png",
+      "PackagePath": "staticwebassets\\files\\covers\\1.png"
+    },
+    {
+      "Id": "C:\\Users\\melan\\source\\repos\\BookStore\\wwwroot\\files\\covers\\2.png",
+      "PackagePath": "staticwebassets\\files\\covers\\2.png"
+    },
+    {
+      "Id": "C:\\Users\\melan\\source\\repos\\BookStore\\wwwroot\\files\\covers\\3.jpg",
+      "PackagePath": "staticwebassets\\files\\covers\\3.jpg"
+    },
+    {
+      "Id": "C:\\Users\\melan\\source\\repos\\BookStore\\wwwroot\\files\\covers\\4.jpg",
+      "PackagePath": "staticwebassets\\files\\covers\\4.jpg"
+    },
+    {
+      "Id": "C:\\Users\\melan\\source\\repos\\BookStore\\wwwroot\\files\\covers\\5.jpg",
+      "PackagePath": "staticwebassets\\files\\covers\\5.jpg"
+    },
+    {
+      "Id": "C:\\Users\\melan\\source\\repos\\BookStore\\wwwroot\\files\\covers\\6.jpg",
+      "PackagePath": "staticwebassets\\files\\covers\\6.jpg"
+    },
+    {
+      "Id": "C:\\Users\\melan\\source\\repos\\BookStore\\wwwroot\\files\\covers\\7.jpg",
+      "PackagePath": "staticwebassets\\files\\covers\\7.jpg"
+    },
+    {
+      "Id": "C:\\Users\\melan\\source\\repos\\BookStore\\wwwroot\\files\\pdf\\book.pdf",
+      "PackagePath": "staticwebassets\\files\\pdf\\book.pdf"
+    },
+    {
       "Id": "C:\\Users\\melan\\source\\repos\\BookStore\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
     },
