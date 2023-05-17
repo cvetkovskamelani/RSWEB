@@ -1,10 +1,8 @@
 ﻿using BookStore.Data;
-using BookStore.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Policy;
 using BookStore.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Policy;
+
 
 namespace BookStore.Models
 {
@@ -123,9 +121,9 @@ namespace BookStore.Models
                     {
                         //Id = 6,
                         Title = "Just the sexiest man alive",
-                        ReleaseYear = 1930,
+                        ReleaseYear = 2020,
                         NumPages = 320,
-                        Description = "\"Sexiest man alive\" is a novel by Julie James about a man that brings down all the stereotipes about sexy men and their dumb decisions. ",
+                        Description = " A novel by Julie James about a man that brings down all the stereotipes about sexy men and their dumb decisions. ",
                         Publisher = "I want books Publishment",
                         FrontPage = "6.jpg",
                         DownloadUrl = "book.pdf",

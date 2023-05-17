@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ViewEngines;
-using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
-using System.ComponentModel.DataAnnotations.Schema;
-using BookStore.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
 namespace BookStore.Models
 {
     public class Review
@@ -23,6 +20,6 @@ namespace BookStore.Models
         [Range(1, 10)]
         public int Rating { get; set; }
 
-        public Books Books { get; set; }
+        public Books? Books { get; set; }
     }
 }

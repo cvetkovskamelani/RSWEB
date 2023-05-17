@@ -79,7 +79,7 @@ namespace BookStore.Controllers
             {
                 return NotFound("Error");
             }
-            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title");
+            ViewData["BookId"] = new SelectList(book, "Id", "Title");
             return View();
         }
 
@@ -98,10 +98,11 @@ namespace BookStore.Controllers
                 return RedirectToAction(nameof(Create));
             }
             ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title", review.BookId);
-            return View(review);
+            return View(Index);
         }
 
         // GET: Reviews/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Review == null)
@@ -115,7 +116,7 @@ namespace BookStore.Controllers
                 return NotFound();
             }
             var book = _context.Review.Include(b => b.Books).Where(b => b.Id == id).Select(b => b.Books).ToList();
-            ViewData["BookId"] = new SelectList(_context.Books, "Id", "Title", review.BookId);
+            ViewData["BookId"] = new SelectList(book, "Id", "Title", review.BookId);
             return View(review);
         }
 
@@ -124,6 +125,7 @@ namespace BookStore.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Edit(int id, [Bind("Id,BookId,AppUser,Comment,Rating")] Review review)
         {
             if (id != review.Id)
@@ -156,6 +158,7 @@ namespace BookStore.Controllers
         }
 
         // GET: Reviews/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Review == null)
@@ -177,6 +180,7 @@ namespace BookStore.Controllers
         // POST: Reviews/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Review == null)

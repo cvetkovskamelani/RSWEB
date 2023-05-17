@@ -25,7 +25,7 @@ namespace BookStore.Controllers
         public async Task<IActionResult> Index(string FullNameSearch, string NationalitySearch)
         {
             IQueryable<Author> authors = _context.Author.AsQueryable();
-            IQueryable<string> nationalityQuery = _context.Author.Select(m => m.Nationality).Distinct();
+            IQueryable<string> nationality = _context.Author.Select(m => m.Nationality).Distinct();
             if (!string.IsNullOrEmpty(FullNameSearch))
             {
                 authors = authors.Where(s => s.FirstName.Contains(FullNameSearch) || s.LastName.Contains(FullNameSearch));
@@ -37,6 +37,7 @@ namespace BookStore.Controllers
 
             var authorVM = new AuthorViewModel
             {
+                Nationalities = new SelectList(await nationality.ToListAsync()),
                 Authors = await authors.ToListAsync()
                 
             };

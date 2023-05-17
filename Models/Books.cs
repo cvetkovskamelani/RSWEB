@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ViewEngines;
-using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
-using System.ComponentModel.DataAnnotations.Schema;
-using BookStore.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
 namespace BookStore.Models
 {
     public class Books
@@ -17,7 +14,6 @@ namespace BookStore.Models
         [Display(Name = "Release Year")]
         public int? ReleaseYear { get; set; }
 
-        [DataType(DataType.Currency)]
         [Display(Name = "Number of pages")]
         public int NumPages { get; set; }
 
@@ -30,17 +26,15 @@ namespace BookStore.Models
         public string? Publisher { get; set; }
 
         [StringLength(500, MinimumLength = 3)]
-        [Required]
         [Display(Name = "Front Page")]
         public string? FrontPage { get; set; }
 
         [StringLength(500, MinimumLength = 3)]
-        [Required]
         [Display(Name = "Download URL")]
         public string? DownloadUrl { get; set; }
 
         public int AuthorId { get; set; }
-        public Author Author { get; set; }
+        public Author? Author { get; set; }
         public ICollection<Review>? Reviews { get; set; }
 
         public ICollection<BookGenre>? BookGenres { get; set; }

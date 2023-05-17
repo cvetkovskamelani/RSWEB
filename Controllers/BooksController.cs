@@ -28,7 +28,7 @@ namespace BookStore.Controllers
         public async Task<IActionResult> Index(string searchString, string BookGenre)
         {
             IQueryable<BookGenre> books = _context.BookGenres.AsQueryable();
-            IQueryable<string> genreQuery = _context.Genre.Distinct().Select(m => m.GenreName).Distinct();
+            IQueryable<string> genre = _context.Genre.Distinct().Select(m => m.GenreName).Distinct();
             if (!string.IsNullOrEmpty(searchString))
             {
                 books = books.Where(s => s.Books.Title.Contains(searchString)); 
@@ -43,7 +43,7 @@ namespace BookStore.Controllers
 
             var BookGenreVM = new GenreViewModel
             {
-                Genre = new SelectList(await genreQuery.ToListAsync()),
+                Genre = new SelectList(await genre.ToListAsync()),
                 Books = await books.Select(s => s.Books).Distinct().ToListAsync(),
                 Reviews = await _context.Review.ToListAsync()
             };
@@ -144,12 +144,27 @@ namespace BookStore.Controllers
                 if (viewmodel.Image != null)
                 {
                     string FileName = UploadFile(viewmodel);
-                    viewmodel.Book.FrontPage = FileName;
+                    if (viewmodel.Book.FrontPage != null)
+                    {
+                        viewmodel.Book.FrontPage = FileName;
+                    }
+                    else
+                    {
+                        viewmodel.Book.FrontPage = "";
+                    }
                 }
                 if (viewmodel.PDF != null)
                 {
                     string FileName = UploadFile(viewmodel);
-                    viewmodel.Book.DownloadUrl = FileName;
+                    if (viewmodel.Book.DownloadUrl != null)
+                    {
+                        viewmodel.Book.DownloadUrl = FileName;
+                    }
+                    else
+                    {
+                        viewmodel.Book.DownloadUrl = "";
+                    }
+                    
                 }
                 _context.Add(viewmodel.Book);
                 await _context.SaveChangesAsync();
@@ -212,10 +227,10 @@ namespace BookStore.Controllers
                 return NotFound();
             }
             
-            GenresEditModel viewmodel = new GenresEditModel
+            CreateViewModel viewmodel = new CreateViewModel
             {
                 Book = book,
-                GenresList = new MultiSelectList(_context.Genre.AsEnumerable().OrderBy(s => s.GenreName), "Id", "GenreName"),
+                GenreList = new MultiSelectList(_context.Genre.AsEnumerable().OrderBy(s => s.GenreName), "Id", "GenreName"),
                 SelectedGenres = book.BookGenres.Select(s => s.GenreId)
             };
             ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "Id", "FullName", book.AuthorId);
@@ -251,21 +266,21 @@ namespace BookStore.Controllers
                     }
                     _context.Update(viewmodel.Book);
                     await _context.SaveChangesAsync();
-                    IEnumerable<int> newGenresList = viewmodel.SelectedGenres;
-                    IEnumerable<int> prevGenresList = _context.BookGenres.Where(m => m.BookId == id).Select(m => m.GenreId);
-                    IQueryable<BookGenre> toBeRemoved = _context.BookGenres.Where(m => m.BookId == id);
-                    if (newGenresList != null)
+                    IEnumerable<int> newgenres = viewmodel.SelectedGenres;
+                    IEnumerable<int> previousgenres = _context.BookGenres.Where(m => m.BookId == id).Select(m => m.GenreId);
+                    IQueryable<BookGenre> remove = _context.BookGenres.Where(m => m.BookId == id);
+                    if (newgenres != null)
                     {
-                        toBeRemoved = toBeRemoved.Where(m => !newGenresList.Contains(m.GenreId));
-                        foreach (int GenreId in newGenresList)
+                        remove = remove.Where(m => !newgenres.Contains(m.GenreId));
+                        foreach (int GenreId in newgenres)
                         {
-                            if (!prevGenresList.Any(m => m == GenreId))
+                            if (!previousgenres.Any(m => m == GenreId))
                             {
                                 _context.BookGenres.Add(new BookGenre { GenreId = GenreId, BookId = id });
                             }
                         }
                     }
-                    _context.BookGenres.RemoveRange(toBeRemoved);
+                    _context.BookGenres.RemoveRange(remove);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -362,10 +377,6 @@ namespace BookStore.Controllers
             _context.UserBooks.Add(new UserBooks { AppUser = usr.Email, BookId = id });
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-        private bool BooksExists(int id)
-        {
-          return (_context.Books?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

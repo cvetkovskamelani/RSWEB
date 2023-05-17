@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using BookStore.Models;
-using System.Collections.Generic;
+
 namespace BookStore.ViewsModels
 {
     public class GenreViewModel

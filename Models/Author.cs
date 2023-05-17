@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ViewEngines;
-using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BookStore.Models;
 
 namespace BookStore.Models
 {
@@ -12,13 +9,11 @@ namespace BookStore.Models
         public int Id { get; set; }
 
         [Display(Name = "First Name")]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z\s]*$")]
         [StringLength(50, MinimumLength = 3)]
         [Required]
         public string? FirstName { get; set; }
 
         [Display(Name = "Last Name")]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z\s]*$")]
         [StringLength(50, MinimumLength = 3)]
         [Required]
         public string? LastName { get; set; }
@@ -28,12 +23,10 @@ namespace BookStore.Models
         public DateTime BirthDate { get; set; }
 
         [StringLength(50, MinimumLength = 3)]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z\s]*$")]
         [Required]
         public string? Nationality { get; set; }
 
         [StringLength(50, MinimumLength = 3)]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z\s]*$")]
         [Required]
         public string? Gender { get; set; }
 
