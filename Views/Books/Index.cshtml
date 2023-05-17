@@ -6,9 +6,12 @@
 
 <h1>Books</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create">Create new</a>
+    </p>
+}
 <form asp-asp-controller="Books" asp-action="Index" method="get">  
     <p>
         <select asp-for="BookGenre" asp-items="Model.Genre">
@@ -39,11 +42,19 @@
             <th>
                 @Html.DisplayNameFor(model => model.Books[0].FrontPage)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Books[0].DownloadUrl)
-            </th>
+
+                @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                {
+                <th>
+                        @Html.DisplayNameFor(model => model.Books[0].DownloadUrl)
+                </th>
+                }
+
             <th>
                 @Html.DisplayNameFor(model => model.Books[0].Author)
+            </th>
+            <th>
+                Rating
             </th>
             <th></th>
         </tr>
@@ -67,18 +78,58 @@
                 @Html.DisplayFor(modelItem => item.Publisher)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.FrontPage)
+                <img src="~/files/@Html.DisplayFor(modelItem => item.FrontPage)" height="400px" width="200px">
             </td>
+                @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                {
             <td>
-                @Html.DisplayFor(modelItem => item.DownloadUrl)
+                <a href="~/files/@Html.DisplayFor(modelItem => item.DownloadUrl)">Download</a>
             </td>
+                }
             <td>
                 @Html.DisplayFor(modelItem => item.Author.FullName)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    @if (Model.Reviews.Any())
+                    {
+                        var rating = 0;
+                        var c = 0;
+                        @foreach (var review in Model.Reviews)
+                        {
+                            if (review.BookId == item.Id && review.Rating != null)
+                            {
+                                c++;
+                                rating += (int)review.Rating;
+
+                            }
+                        }
+                        if  (rating != 0 && c != 0)
+                        {
+                            rating = rating / c;
+                        }
+                        <p> @rating</p>
+                    }
+                    else
+                    {
+                        <p>No Rating</p>
+                    }
+            </td>
+            <td>
+            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+            {
+              <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> 
+            }
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("User"))
+                    {
+                        <form method="post" asp-controller="Books" asp-action="Buy" asp-route-id="@item.Id">
+                            <button type="submit" class="btn btn-link">Buy</button>
+                        </form>
+                    }
+            <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+            {
+               <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            }
             </td>
         </tr>
 }

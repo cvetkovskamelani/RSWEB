@@ -1,25 +1,45 @@
 ﻿using BookStore.Data;
-using BookStore.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Runtime.ConstrainedExecution;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Security.Policy;
-using System.Text.RegularExpressions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using BookStore.Areas.Identity.Data;
+using Microsoft.AspNetCore.Identity;
+
 
 namespace BookStore.Models
 {
         public class SeedData
         {
-            public static void Initialize(IServiceProvider serviceProvider)
+        public static async Task CreateUserRoles(IServiceProvider serviceProvider)
+        {
+            var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var UserManager = serviceProvider.GetRequiredService<UserManager<BookStoreUser>>();
+            IdentityResult roleResult;
+            //Add Admin Role
+            var roleAdminCheck = await RoleManager.RoleExistsAsync("Admin");
+            if (!roleAdminCheck) { roleResult = await RoleManager.CreateAsync(new IdentityRole("Admin")); }
+            //Add User Role
+            var roleUserCheck = await RoleManager.RoleExistsAsync("User");
+            if (!roleUserCheck) { roleResult = await RoleManager.CreateAsync(new IdentityRole("User")); }
+
+            BookStoreUser user = await UserManager.FindByEmailAsync("admin@bookstore.com");
+            if (user == null)
+            {
+                var User = new BookStoreUser();
+                User.Email = "admin@bookstore.com";
+                User.UserName = "admin@bookstore.com";
+                string userPWD = "Admin123";
+                IdentityResult chkUser = await UserManager.CreateAsync(User, userPWD);
+                //Add default User to Role Admin      
+                if (chkUser.Succeeded) { var result1 = await UserManager.AddToRoleAsync(User, "Admin"); }
+            }
+        }
+        public static void Initialize(IServiceProvider serviceProvider)
             {
                 using (var context = new BookStoreContext(
                     serviceProvider.GetRequiredService<
                         DbContextOptions<BookStoreContext>>()))
                 {
-                    if (context.Author.Any() || context.Books.Any() || context.BookGenres.Any() || context.Genre.Any() || context.Review.Any() || context.UserBooks.Any())
+                CreateUserRoles(serviceProvider).Wait();
+                if (context.Author.Any() || context.Books.Any() || context.BookGenres.Any() || context.Genre.Any() || context.Review.Any() || context.UserBooks.Any())
                     {
                         return;   // DB has been seeded
                     }
@@ -45,7 +65,8 @@ namespace BookStore.Models
                         NumPages = 443,
                         Description = "A sweeping history of the human species and its evolution from prehistoric times to the present day.",
                         Publisher = "Harper Collins",
-                        FrontPage = "1.jpg",
+                        FrontPage = "1.png",
+                        DownloadUrl = "book.pdf",
                         AuthorId = 1
                     },
                     new Books
@@ -56,7 +77,8 @@ namespace BookStore.Models
                         NumPages = 419,
                         Description = "A sequel to The Handmaid's Tale that continues the story of the Republic of Gilead.",
                         Publisher = "Nan A.Talese",
-                        FrontPage = "2.jpg",
+                        FrontPage = "2.png",
+                        DownloadUrl = "book.pdf",
                         AuthorId = 2
                     },
                     new Books
@@ -68,6 +90,7 @@ namespace BookStore.Models
                         Description = "A non - fiction work that tells the story of Henrietta Lacks, a woman whose cells were used without her knowledge to create the first immortal human cell line.",
                         Publisher = "Crown Publishing Group",
                         FrontPage = "3.jpg",
+                        DownloadUrl = "book.pdf",
                         AuthorId = 3
                     },
                     new Books
@@ -79,6 +102,7 @@ namespace BookStore.Models
                         Description = "A classic novel that explores the decadence and excess of the Roaring Twenties.",
                         Publisher = "Charles Scribner's Sons",
                         FrontPage = "4.jpg",
+                        DownloadUrl = "book.pdf",
                         AuthorId = 4
                     },
                     new Books
@@ -90,17 +114,19 @@ namespace BookStore.Models
                         Description = "An investigative journalism work that uncovers the deception and fraud behind the rise and fall of the biotech company Theranos.",
                         Publisher = "Knopf Doubleday Publishing Group",
                         FrontPage = "5.jpg",
+                        DownloadUrl = "book.pdf",
                         AuthorId = 5
                     },
                     new Books
                     {
                         //Id = 6,
-                        Title = "Sexiest man alive",
-                        ReleaseYear = 1930,
+                        Title = "Just the sexiest man alive",
+                        ReleaseYear = 2020,
                         NumPages = 320,
-                        Description = "\"Sexiest man alive\" is a novel by Julie James about a man that brings down all the stereotipes about sexy men and their dumb decisions. ",
+                        Description = " A novel by Julie James about a man that brings down all the stereotipes about sexy men and their dumb decisions. ",
                         Publisher = "I want books Publishment",
                         FrontPage = "6.jpg",
+                        DownloadUrl = "book.pdf",
                         AuthorId = 6
                     },
                     new Books
@@ -112,12 +138,11 @@ namespace BookStore.Models
                         Description = "A novel that explores the lives of wealthy socialites Anthony and Gloria Patch as they descend into alcoholism and excess in 1920s New York.",
                         Publisher = "Scribner's Sons",
                         FrontPage = "7.jpg",
+                        DownloadUrl = "book.pdf",
                         AuthorId = 4
                     }
 
-            );
-
-
+                  );
 
                     context.SaveChanges();
 
@@ -155,7 +180,7 @@ namespace BookStore.Models
                         new Genre
                         {
                             // Id = 7
-                            GenreName = " Fiction Literary"
+                            GenreName = "Fiction Literary"
                         }
                         
                     );

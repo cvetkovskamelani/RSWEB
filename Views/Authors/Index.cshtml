@@ -41,19 +41,19 @@
 @foreach (var item in Model.Authors) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
+                @Html.DisplayFor(idem => item.FirstName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.LastName)
+                @Html.DisplayFor(idem => item.LastName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.BirthDate)
+                @Html.DisplayFor(idem => item.BirthDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Nationality)
+                @Html.DisplayFor(idem => item.Nationality)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Gender)
+                @Html.DisplayFor(idem => item.Gender)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
