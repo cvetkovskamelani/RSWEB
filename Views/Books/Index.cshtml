@@ -78,12 +78,12 @@
                 @Html.DisplayFor(modelItem => item.Publisher)
             </td>
             <td>
-                <img src="~/files/@Html.DisplayFor(modelItem => item.FrontPage)" height="400px" width="200px">
+                <img src="~/files/covers/@Html.DisplayFor(modelItem => item.FrontPage)" height="400px" width="200px">
             </td>
                 @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
                 {
             <td>
-                <a href="~/files/@Html.DisplayFor(modelItem => item.DownloadUrl)">Download</a>
+                <a href="~/files/pdf/@Html.DisplayFor(modelItem => item.DownloadUrl)">Download</a>
             </td>
                 }
             <td>
