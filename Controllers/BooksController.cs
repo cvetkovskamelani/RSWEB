@@ -52,16 +52,12 @@ namespace BookStore.Controllers
         }
 
         // GET: Owned Books
-        [Authorize(Roles = "User")]
-        public async Task<IActionResult> OwnedBooks(string searchString)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> OwnedBooks()
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
             IQueryable<UserBooks> books = _context.UserBooks.AsQueryable().Where(s => s.AppUser == user.Email);
             IQueryable<string> genreQuery = _context.Genre.Distinct().Select(g => g.GenreName).Distinct();
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                books = books.Where(s => s.Books.Title.Contains(searchString));
-            }
 
             books = books.Include(b => b.Books).ThenInclude(b => b.Author);
 
@@ -343,9 +339,10 @@ namespace BookStore.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        // POST: Buy
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Buy(int id)
         {
             if (id == null)
@@ -362,19 +359,19 @@ namespace BookStore.Controllers
             }
 
 
-            var usr = await _userManager.GetUserAsync(HttpContext.User);
-            if (usr == null)
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            if (user == null)
             {
                 return NotFound();
             }
 
-            var ownAlready = await _context.UserBooks.Where(s => s.AppUser == usr.Email && s.BookId == id).FirstOrDefaultAsync();
+            var ownAlready = await _context.UserBooks.Where(s => s.AppUser == user.Email && s.BookId == id).FirstOrDefaultAsync();
             if (ownAlready != null)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            _context.UserBooks.Add(new UserBooks { AppUser = usr.Email, BookId = id });
+            _context.UserBooks.Add(new UserBooks { AppUser = user.Email, BookId = id });
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

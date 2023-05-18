@@ -26,10 +26,10 @@ namespace BookStore.Models
                 var User = new BookStoreUser();
                 User.Email = "admin@bookstore.com";
                 User.UserName = "admin@bookstore.com";
-                string userPWD = "Admin123";
-                IdentityResult chkUser = await UserManager.CreateAsync(User, userPWD);
+                string pass = "Admin123";
+                IdentityResult userr = await UserManager.CreateAsync(User, pass);
                 //Add default User to Role Admin      
-                if (chkUser.Succeeded) { var result1 = await UserManager.AddToRoleAsync(User, "Admin"); }
+                if (userr.Succeeded) { var result1 = await UserManager.AddToRoleAsync(User, "Admin"); }
             }
         }
         public static void Initialize(IServiceProvider serviceProvider)

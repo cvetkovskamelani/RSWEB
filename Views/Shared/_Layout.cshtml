@@ -34,10 +34,10 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Reviews" asp-action="Index">Reviews</a>
                             </li>
                         }
-                        @if (User.Identity.IsAuthenticated && User.IsInRole("User"))
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Books" asp-action="Owned">Owned Books</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Books" asp-action="OwnedBooks">Owned Books</a>
                             </li>
                         }
                     </ul>
