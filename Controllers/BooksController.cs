@@ -52,7 +52,7 @@ namespace BookStore.Controllers
         }
 
         // GET: Owned Books
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> OwnedBooks()
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
@@ -342,7 +342,7 @@ namespace BookStore.Controllers
         // POST: Buy
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> Buy(int id)
         {
             if (id == null)

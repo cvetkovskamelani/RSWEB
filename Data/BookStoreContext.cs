@@ -4,17 +4,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BookStore.Models;
-
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using BookStore.Areas.Identity.Data;
 namespace BookStore.Data
 {
-    public class BookStoreContext : DbContext
+    public class BookStoreContext : IdentityDbContext<BookStoreUser>
     {
         public BookStoreContext (DbContextOptions<BookStoreContext> options)
             : base(options)
         {
         }
 
-        public DbSet<BookStore.Models.Books> Books { get; set; } = default!;
+        public DbSet<BookStore.Models.Books> Books { get; set; } 
 
         public DbSet<BookStore.Models.Author>? Author { get; set; }
 
@@ -26,6 +27,7 @@ namespace BookStore.Data
         public DbSet<BookStore.Models.UserBooks>? UserBooks { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            base.OnModelCreating(builder);
             builder.Entity<BookGenre>()
                 .HasOne<Books>(m => m.Books)
                 .WithMany(m => m.BookGenres)

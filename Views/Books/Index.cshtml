@@ -119,7 +119,7 @@
             {
               <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> 
             }
-                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("User"))
                     {
                         <form method="post" asp-controller="Books" asp-action="Buy" asp-route-id="@item.Id">
                             <button type="submit" class="btn btn-link">Buy</button>

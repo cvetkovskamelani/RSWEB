@@ -20,7 +20,7 @@ namespace BookStore.Controllers
         }
 
         // GET: Reviews
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, User")]
         public async Task<IActionResult> Index()
         {
             var BookStoreContext = _context.Review.Include(m => m.Books);
@@ -28,7 +28,7 @@ namespace BookStore.Controllers
         }
 
         // GET: Reviews/Details/5
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, User")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Review == null)
